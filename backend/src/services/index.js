@@ -1,3 +1,3 @@
-import { createUser } from "./user.services.js"
+import { createUser, isEmailPresent } from "./user.services.js"
 
-export { createUser };
+export { createUser, isEmailPresent };

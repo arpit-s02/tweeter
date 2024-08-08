@@ -1,3 +1,3 @@
-import validateRegister from "./validateRegister.middleware.js";
+import validateSchema from "./validateSchema.middleware.js";
 
-export { validateRegister };
+export { validateSchema };
