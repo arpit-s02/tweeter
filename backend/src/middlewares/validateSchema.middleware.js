@@ -1,13 +1,20 @@
 const validateSchema = (schema) => (req, res, next) => {
-    const data = req.body;
+    try {
+        const data = req.body;
+        
+        const { error } = schema.validate(data);
     
-    const { error } = schema.validate(data);
+        if(error) {
+            const err = new Error(error.details[0].message);
+            err.status = 400;
+            throw err;
+        }
+    
+        next();
 
-    if(error) {
-        return res.status(400).json({ message: error.details[0].message });
+    } catch (error) {
+        next(error);
     }
-
-    next();
 }
 
 export default validateSchema;

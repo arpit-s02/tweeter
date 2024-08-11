@@ -5,10 +5,9 @@ const createUser = async (userInfo) => {
     return user;
 }
 
-const isEmailPresent = async (email) => {
+const getUserByEmail = async (email) => {
     const user = await User.findOne({ email });
-    if(user) return true;
-    else return false;
+    return user;
 }
 
-export { createUser, isEmailPresent };
+export { createUser, getUserByEmail };

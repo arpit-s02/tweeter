@@ -1,31 +1,55 @@
-import { createUser, isEmailPresent } from "../services/user.services.js";
+import { createUser, getUserByEmail } from "../services/user.services.js";
 import hashPassword from "../utils/hashPassword.js";
 
-const register = async (req, res) => {
+/* HELPER FUNCTIONS START */
+
+const validatePasswords = (password, confirmPassword) => {
+    if(password !== confirmPassword) {
+        const error = new Error("Password and confirm password do not match");
+        error.status = 400;
+        throw error;
+    }
+}
+
+const checkUserExists = async (email) => {
+    const existingUser = await getUserByEmail(email);
+
+    if(existingUser) {
+        const error = new Error("An account with this email already exists. Please try to login");
+        error.status = 400;
+        throw error;
+    }
+}
+
+/* HELPER FUNCTIONS END */
+
+
+/* MAIN FUNCTIONS START */
+
+const register = async (req, res, next) => {
     try {
         const { email, password, confirmPassword } = req.body;
 
-        if(password !== confirmPassword) {
-            return res.status(400).json({ message: "Password and confirm password do not match" });
-        }
+        validatePasswords(password, confirmPassword);
 
-        const isUserRegistered = await isEmailPresent(email);
-        
-        if(isUserRegistered) {
-            return res.status(400).json({ message: "An account with this email already exists. Please try to login" });
-        }
+        await checkUserExists(email);
 
         const hashedPassword = await hashPassword(password);
 
         const userInfo = { ...req.body, password: hashedPassword }
         
-        const user = await createUser(userInfo);
+        const newUser = await createUser(userInfo);
 
-        return res.status(201).json(user);
+        const { password: _, createdAt, updatedAt, __v, ...userResponse } = newUser._doc;
+
+        return res.status(201).json(userResponse);
 
     } catch(error) {
-        return res.status(500).json({message: "Couldn't create user"});
+        console.error("Error registering user: ", error);
+        next(error);
     }
 }
+
+/* MAIN FUNCTIONS END */
 
 export { register };

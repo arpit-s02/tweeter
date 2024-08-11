@@ -14,7 +14,6 @@ app.use('/api/v1', routes);
 
 app.use(handleNotFound);
 
-// TODO
-// app.use((err, req, res, next) => res.send("Error"));
+app.use(handleError);
 
 app.listen(PORT, () => console.log(`App is running on PORT ${PORT}`));

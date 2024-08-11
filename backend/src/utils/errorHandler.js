@@ -1,10 +1,8 @@
-const handleError = (err, req, res) => {
-    // console.log("error handler")
+const handleError = (err, req, res, next) => {
     const status = err.status || 500;
     const message = err.message || "Something went wrong. Please try again later."
 
-    res.status(status).json({message});
-    // res.send("error");
+    return res.status(status).json({ message, status });
 }
 
 export default handleError;
