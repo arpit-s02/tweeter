@@ -1,5 +1,3 @@
 import "dotenv/config"
 
-const { PORT, MONGODBURI } = process.env;
-
-export { PORT, MONGODBURI }
+export const { PORT, MONGODB_URI, JWT_SECRET } = process.env;

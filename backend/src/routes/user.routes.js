@@ -1,10 +1,12 @@
 import express from "express";
-import { register } from "../controllers/index.js";
 import { validateSchema } from "../middlewares/index.js"
-import { registerSchema } from "../schemas/index.js";
+import { loginSchema, registerSchema } from "../schemas/index.js";
+import { register, login } from "../controllers/user.controllers.js";
 
 const router = express.Router();
 
-router.post("/create", validateSchema(registerSchema), register);
+router.post("/register", validateSchema(registerSchema), register);
+
+router.post("/login", validateSchema(loginSchema), login);
 
 export default router;

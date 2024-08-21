@@ -1,5 +1,6 @@
-import { createUser, getUserByEmail } from "../services/user.services.js";
-import hashPassword from "../utils/hashPassword.js";
+import bcrypt from "bcrypt";
+import { JWT_SECRET } from "../../config.js";
+import { createUser, generateToken, getUserByEmail, hashPassword } from "../services/user.services.js";
 
 /* HELPER FUNCTIONS START */
 
@@ -11,14 +12,12 @@ const validatePasswords = (password, confirmPassword) => {
     }
 }
 
-const checkUserExists = async (email) => {
-    const existingUser = await getUserByEmail(email);
+const verifyPassword = async (password, hashedPassword) => {
+    const result = await bcrypt.compare(password, hashedPassword);
 
-    if(existingUser) {
-        const error = new Error("An account with this email already exists. Please try to login");
-        error.status = 400;
-        throw error;
-    }
+    if(!result) return false;
+
+    return true;
 }
 
 /* HELPER FUNCTIONS END */
@@ -32,7 +31,13 @@ const register = async (req, res, next) => {
 
         validatePasswords(password, confirmPassword);
 
-        await checkUserExists(email);
+        const user = await getUserByEmail(email);
+
+        if(user) {
+            const error = new Error("An account with this email already exists. Please try to login");
+            error.status = 400;
+            throw error;
+        }
 
         const hashedPassword = await hashPassword(password);
 
@@ -45,11 +50,41 @@ const register = async (req, res, next) => {
         return res.status(201).json(userResponse);
 
     } catch(error) {
-        console.error("Error registering user: ", error);
+        console.error("Error registering user:", error);
         next(error);
+    }
+}
+
+const login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await getUserByEmail(email);
+
+        if(!user) {
+            const error = new Error("Invalid email or password");
+            error.status = 400;
+            throw error;
+        }
+
+        const passwordVerificationResult = await verifyPassword(password, user.password);
+
+        if(!passwordVerificationResult) {
+            const error = new Error("Invalid email or password");
+            error.status = 400;
+            throw error;
+        }
+
+        const token = generateToken(user._id, JWT_SECRET);
+
+        return res.json({ name: user.name, token });
+        
+    } catch(error) {
+        console.error("Error logging in user:", error);
+        next(error)
     }
 }
 
 /* MAIN FUNCTIONS END */
 
-export { register };
+export { register, login };

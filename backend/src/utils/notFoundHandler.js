@@ -1,5 +1,5 @@
 const handleNotFound = (req, res, next) => {
-    return res.status(404).send("<h1>Page Not Found<h1>");
+    return res.status(404).send("Not found");
 }
 
 export default handleNotFound;
