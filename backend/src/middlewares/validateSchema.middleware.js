@@ -1,6 +1,6 @@
-const validateSchema = (schema) => (req, res, next) => {
+const validateSchema = (schema, key) => (req, res, next) => {
     try {
-        const data = req.body;
+        const data = req[key];
         
         const { error } = schema.validate(data);
     

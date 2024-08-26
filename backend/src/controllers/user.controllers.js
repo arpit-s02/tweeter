@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { JWT_SECRET } from "../../config.js";
-import { createUser, generateToken, getUserByEmail, hashPassword } from "../services/user.services.js";
+import { createUser, generateToken, getUserByEmail, getUserById, hashPassword } from "../services/user.services.js";
 
 /* HELPER FUNCTIONS START */
 
@@ -85,6 +85,26 @@ const login = async (req, res, next) => {
     }
 }
 
+const getUserDetails = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const user = await getUserById(id);
+
+        if(!user) {
+            const err = new Error("User Not Found!");
+            err.status = 404;
+            throw err;
+        }
+
+        return res.json(user);
+
+    } catch(error) {
+        console.error(error);
+        next(error);
+    }
+}
+
 /* MAIN FUNCTIONS END */
 
-export { register, login };
+export { register, login, getUserDetails };
